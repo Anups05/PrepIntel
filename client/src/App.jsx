@@ -1,66 +1,55 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-// Auth Page (NO Sidebar)
+// Auth Page
 import Auth from "./pages/Auth";
 
-// Dashboard Layout (WITH Sidebar + Outlet)
+// Dashboard Layout and Pages
 import DashboardLayout from "./pages/DashboardLayout";
-
-// Dashboard Pages
 import Dashboard from "./pages/Dashboard";
 import Analytics from "./pages/Analytics";
 import AIInsights from "./pages/AIInsights";
 import DailyTestsHome from "./pages/DailyTestsHome";
 import Streak from "./pages/Streak";
 import Settings from "./pages/Settings";
-
-// Notifications Page
 import Notifications from "./pages/Notifications";
 
 // Admin Layout and Pages
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import ManageTests from "./pages/admin/ManageTests";
-import ManageUsers from "./pages/admin/ManageUsers";
+import Students from "./pages/admin/Students";
+import Batches from "./pages/admin/Batches";
+import Tests from "./pages/admin/Tests";
+import QuestionBank from "./pages/admin/QuestionBank";
+import AIInsightsAdmin from "./pages/admin/AIInsights";
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* 1️⃣ FIRST PAGE - AUTH (NO SIDEBAR) */}
+        {/* Auth Page */}
         <Route path="/" element={<Auth />} />
 
-        {/* 2️⃣ DASHBOARD + ALL PAGES WITH PERSISTENT SIDEBAR */}
+        {/* Student Dashboard */}
         <Route path="/dashboard" element={<DashboardLayout />}>
-          
-          {/* Default /dashboard */}
           <Route index element={<Dashboard />} />
-
-          {/* Nested Pages */}
           <Route path="analytics" element={<Analytics />} />
           <Route path="ai-insights" element={<AIInsights />} />
           <Route path="daily-tests" element={<DailyTestsHome />} />
           <Route path="streak" element={<Streak />} />
           <Route path="settings" element={<Settings />} />
-          
-          {/* Notifications Page - Inside dashboard layout */}
           <Route path="notifications" element={<Notifications />} />
-          
         </Route>
 
-        {/* 4️⃣ ADMIN ROUTES */}
+        {/* Admin Panel */}
         <Route path="/admin" element={<AdminLayout />}>
-          {/* Default admin route - redirects to dashboard */}
           <Route index element={<AdminDashboard />} />
-          
-          {/* Admin nested pages */}
           <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="tests" element={<ManageTests />} />
-          <Route path="users" element={<ManageUsers />} />
-          
-          {/* Add more admin routes here as needed */}
-          {/* <Route path="analytics" element={<AllAnalytics />} /> */}
+          <Route path="students" element={<Students />} />
+          <Route path="batches" element={<Batches />} />
+          <Route path="tests" element={<Tests />} />
+          <Route path="question-bank" element={<QuestionBank />} />
+          <Route path="ai-insights" element={<AIInsightsAdmin />} />
         </Route>
       </Routes>
     </Router>

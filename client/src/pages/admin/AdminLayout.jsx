@@ -1,124 +1,151 @@
-import React from "react";
+import React, { useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Users, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Users,
+  BookOpen,
+  FileText,
+  Database,
+  Brain,
+  Settings,
   LogOut,
-  HelpCircle,
+  Menu,
+  X,
   ChevronLeft,
-  Menu
+  Bell,
+  Search,
+  User
 } from "lucide-react";
 
 const AdminLayout = () => {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const [collapsed, setCollapsed] = React.useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   const menuItems = [
-    { path: "/admin/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-    { path: "/admin/tests", icon: FileText, label: "Manage Tests" },
-    { path: "/admin/users", icon: Users, label: "Manage Users" },
+    { path: "/admin", icon: LayoutDashboard, label: "Dashboard", end: true },
+    { path: "/admin/students", icon: Users, label: "Students" },
+    { path: "/admin/batches", icon: BookOpen, label: "Batches" },
+    { path: "/admin/tests", icon: FileText, label: "Tests" },
+    { path: "/admin/question-bank", icon: Database, label: "Question Bank" },
+    { path: "/admin/ai-insights", icon: Brain, label: "AI Insights" },
   ];
 
+  const isActive = (path) => {
+    if (path === "/admin" && location.pathname === "/admin") return true;
+    if (path !== "/admin" && location.pathname.startsWith(path)) return true;
+    return false;
+  };
+
+  const getPageTitle = () => {
+    const currentItem = menuItems.find(item =>
+      item.path === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(item.path)
+    );
+    return currentItem ? currentItem.label : "Admin Dashboard";
+  };
+
   const handleLogout = () => {
+    localStorage.removeItem("adminToken");
     navigate("/");
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F5F6FA] flex">
       {/* Sidebar - Desktop */}
-      <div 
-        className={`${
-          collapsed ? "w-20" : "w-64"
-        } bg-gradient-to-b from-purple-900 to-indigo-900 text-white hidden md:block transition-all duration-300 relative`}
+      <div
+        className={`fixed left-0 top-0 h-screen bg-[#0B0F1A] text-white border-r border-gray-800/50 hidden md:flex flex-col transition-all duration-300 z-50 ${sidebarCollapsed ? "w-20" : "w-64"
+          }`}
       >
-        {/* Toggle Button */}
+        {/* Toggle Button - Positioned higher as requested */}
         <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="absolute -right-3 top-10 bg-purple-700 text-white p-1 rounded-full hover:bg-purple-600"
+          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          className="absolute -right-3 top-6 bg-purple-600 text-white p-1.5 rounded-full hover:bg-purple-700 shadow-lg z-[60] transition-colors"
         >
-          <ChevronLeft size={16} className={`${collapsed ? "rotate-180" : ""} transition`} />
+          <ChevronLeft size={16} className={`${sidebarCollapsed ? "rotate-180" : ""} transition-transform duration-300`} />
         </button>
 
-        {/* Logo */}
-        <div className="p-6 border-b border-white/10">
+        {/* Logo Section */}
+        <div className="p-6 h-20 flex items-center">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-              <span className="text-xl font-bold">A</span>
+            <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-600/20">
+              <span className="text-white font-bold text-lg">P</span>
             </div>
-            {!collapsed && (
-              <div>
-                <h2 className="font-bold text-lg">Admin Panel</h2>
-                <p className="text-xs text-purple-300">Exam Analyzer</p>
+            {!sidebarCollapsed && (
+              <div className="overflow-hidden whitespace-nowrap">
+                <h2 className="font-bold text-white tracking-tight">Prep<span className="text-purple-400">Intel</span></h2>
+                <p className="text-[10px] text-purple-300/70 font-medium uppercase tracking-widest">Admin Panel</p>
               </div>
             )}
           </div>
         </div>
 
         {/* Menu Items */}
-        <div className="p-4 space-y-2">
+        <div className="flex-1 px-4 py-2 space-y-2 overflow-y-auto custom-scrollbar">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+            const active = isActive(item.path);
             return (
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition ${
-                  isActive
-                    ? "bg-white/20 text-white"
-                    : "text-purple-200 hover:bg-white/10 hover:text-white"
-                }`}
+                className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group relative ${active
+                  ? "bg-purple-600 text-white shadow-lg shadow-purple-600/20"
+                  : "text-gray-400 hover:bg-purple-500/10 hover:text-white"
+                  }`}
               >
-                <Icon size={20} />
-                {!collapsed && <span className="text-sm">{item.label}</span>}
+                <Icon size={20} className="flex-shrink-0" />
+                {!sidebarCollapsed && <span className="text-sm font-medium whitespace-nowrap">{item.label}</span>}
+                {sidebarCollapsed && (
+                  <div className="absolute left-full ml-4 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+                    {item.label}
+                  </div>
+                )}
               </button>
             );
           })}
         </div>
 
-        {/* Bottom Section */}
-        <div className="absolute bottom-0 w-full p-4 border-t border-white/10">
-          <button
-            onClick={() => navigate("/")}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-purple-200 hover:bg-white/10 hover:text-white transition"
-          >
-            <HelpCircle size={20} />
-            {!collapsed && <span className="text-sm">Help & Support</span>}
-          </button>
+        {/* Bottom Section - Logout Only */}
+        <div className="p-4 border-t border-gray-800/50">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-purple-200 hover:bg-white/10 hover:text-white transition mt-1"
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all duration-300 border border-red-500/10 group relative"
           >
-            <LogOut size={20} />
-            {!collapsed && <span className="text-sm">Logout</span>}
+            <LogOut size={20} className="flex-shrink-0" />
+            {!sidebarCollapsed && <span className="text-sm font-medium whitespace-nowrap">Logout</span>}
+            {sidebarCollapsed && (
+              <div className="absolute left-full ml-4 px-2 py-1 bg-red-900/90 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+                Logout
+              </div>
+            )}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu Button */}
-      <button
-        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 bg-purple-600 text-white p-2 rounded-lg"
-      >
-        <Menu size={24} />
-      </button>
-
-      {/* Mobile Sidebar */}
+      {/* Mobile Sidebar - Updated to match theme */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 bg-black/50 z-40" onClick={() => setMobileMenuOpen(false)}>
-          <div className="w-64 bg-gradient-to-b from-purple-900 to-indigo-900 text-white h-full p-4" onClick={e => e.stopPropagation()}>
-            {/* Mobile menu content */}
-            <div className="mb-6">
-              <h2 className="font-bold text-lg">Admin Panel</h2>
-              <p className="text-xs text-purple-300">Exam Analyzer</p>
+        <div className="fixed inset-0 bg-black/60 z-[70] md:hidden backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)}>
+          <div className="w-64 bg-[#0B0F1A] h-full p-6 flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-10">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold">P</span>
+                </div>
+                <h2 className="font-bold text-white uppercase tracking-wider text-sm">PrepIntel</h2>
+              </div>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2 hover:bg-white/10 rounded-lg transition"
+              >
+                <X size={20} className="text-gray-400" />
+              </button>
             </div>
-            <div className="space-y-2">
+
+            <div className="flex-1 space-y-2 overflow-y-auto">
               {menuItems.map((item) => {
                 const Icon = item.icon;
+                const active = isActive(item.path);
                 return (
                   <button
                     key={item.path}
@@ -126,23 +153,64 @@ const AdminLayout = () => {
                       navigate(item.path);
                       setMobileMenuOpen(false);
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-purple-200 hover:bg-white/10 hover:text-white transition"
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition ${active ? "bg-purple-600 text-white shadow-lg" : "text-gray-400 hover:bg-white/5 hover:text-white"
+                      }`}
                   >
                     <Icon size={20} />
-                    <span className="text-sm">{item.label}</span>
+                    <span className="text-sm font-medium">{item.label}</span>
                   </button>
                 );
               })}
+            </div>
+
+            <div className="pt-6 border-t border-gray-800/50 mt-6">
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 border border-red-500/10"
+              >
+                <LogOut size={20} />
+                <span className="text-sm font-medium">Logout</span>
+              </button>
             </div>
           </div>
         </div>
       )}
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto">
-        <div className="p-8">
+      <div
+        className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${sidebarCollapsed ? "md:ml-20" : "md:ml-64"
+          }`}
+      >
+        {/* Top Bar */}
+        <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 px-8 py-4 flex items-center justify-between sticky top-0 z-40">
+          <div className="hidden sm:block">
+            <h1 className="text-lg font-bold text-gray-800 tracking-tight">{getPageTitle()}</h1>
+            <p className="text-[11px] text-gray-400 font-medium -mt-1">Manage your platform and student activities</p>
+          </div>
+          <div className="flex items-center gap-4">
+            {/* Mobile menu toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+            >
+              <Menu size={24} />
+            </button>
+            <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
+              <div className="hidden md:block text-right">
+                <p className="text-sm font-semibold text-gray-800">Admin User</p>
+                <p className="text-[10px] font-medium text-purple-600 uppercase tracking-wider">Super Admin</p>
+              </div>
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-600/20">
+                <User className="text-white" size={20} />
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Page Content */}
+        <main className="flex-1 p-8">
           <Outlet />
-        </div>
+        </main>
       </div>
     </div>
   );

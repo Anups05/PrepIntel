@@ -2,19 +2,34 @@ import React, { useState, useRef, useEffect } from "react";
 import { Bell } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { getStudentNotifications } from "../../services/testService";
 
 const NotificationIcon = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [notificationCount, setNotificationCount] = useState(4); // Mock unread count
+  const [recentNotifications, setRecentNotifications] = useState([]);
+  const [notificationCount, setNotificationCount] = useState(0);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
-  // Mock notifications for dropdown preview
-  const recentNotifications = [
-    { id: 1, type: "reminder", message: "Daily Test in 30 minutes", time: "5 min ago", read: false },
-    { id: 2, type: "alert", message: "New test available: Mixed Test", time: "1 hour ago", read: false },
-    { id: 3, type: "achievement", message: "7-day streak achieved! 🎉", time: "2 hours ago", read: true },
-  ];
+  useEffect(() => {
+    const fetchNotifs = async () => {
+      try {
+        const res = await getStudentNotifications();
+        const notifs = (res.data.notifications || []).slice(0, 5).map((n, i) => ({
+          id: n.id || i,
+          type: n.type,
+          message: n.message,
+          time: n.time || "Now",
+          read: false
+        }));
+        setRecentNotifications(notifs);
+        setNotificationCount(notifs.length);
+      } catch (err) {
+        console.error("Failed to fetch notifications:", err);
+      }
+    };
+    fetchNotifs();
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -33,10 +48,10 @@ const NotificationIcon = () => {
   };
 
   const getNotificationIcon = (type) => {
-    switch(type) {
+    switch (type) {
       case "reminder": return "⏰";
       case "alert": return "📢";
-      case "achievement": return "🏆";
+      case "achievement": return "🔥";
       default: return "📌";
     }
   };
@@ -70,7 +85,7 @@ const NotificationIcon = () => {
             <div className="p-4 border-b border-gray-100">
               <div className="flex justify-between items-center">
                 <h3 className="font-semibold text-gray-800">Notifications</h3>
-                <button 
+                <button
                   onClick={() => setNotificationCount(0)}
                   className="text-xs text-purple-600 hover:text-purple-700"
                 >
@@ -81,27 +96,39 @@ const NotificationIcon = () => {
 
             {/* Notification List */}
             <div className="max-h-96 overflow-y-auto">
-              {recentNotifications.map((notif) => (
-                <div
-                  key={notif.id}
-                  className={`p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition ${
-                    !notif.read ? "bg-purple-50/30" : ""
-                  }`}
-                >
-                  <div className="flex gap-3">
-                    <div className="text-xl">{getNotificationIcon(notif.type)}</div>
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-800">{notif.message}</p>
-                      <p className="text-xs text-gray-400 mt-1">{notif.time}</p>
+              {recentNotifications.length === 0 ? (
+                <div className="p-6 text-center text-gray-400 text-sm">No notifications</div>
+              ) : (
+                recentNotifications.map((notif) => (
+                  <div
+                    key={notif.id}
+                    className={`p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition ${!notif.read ? "bg-purple-50/30" : ""
+                      }`}
+                  >
+                    <div className="flex gap-3">
+                      <div className="text-xl">{getNotificationIcon(notif.type)}</div>
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-800">{notif.message}</p>
+                        <p className="text-xs text-gray-400 mt-1">{notif.time}</p>
+                      </div>
+                      {!notif.read && (
+                        <div className="w-2 h-2 bg-purple-600 rounded-full mt-2"></div>
+                      )}
                     </div>
-                    {!notif.read && (
-                      <div className="w-2 h-2 bg-purple-600 rounded-full mt-2"></div>
-                    )}
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
 
+            {/* View All */}
+            <div className="p-3 border-t border-gray-100">
+              <button
+                onClick={handleViewAll}
+                className="w-full text-center text-sm text-purple-600 hover:text-purple-700 font-medium"
+              >
+                View all notifications
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

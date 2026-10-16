@@ -1,359 +1,358 @@
-import React, { useState } from "react";
-import { TrendingUp, AlertTriangle, Clock, Target, ChevronRight, Brain, Zap, BarChart3 } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import {
+  Brain,
+  AlertTriangle,
+  Clock,
+  Target,
+  TrendingUp,
+  TrendingDown,
+  BarChart3,
+  Zap,
+  RefreshCw,
+  Loader2,
+  Award,
+  BookOpen
+} from "lucide-react";
+import { getStudentAIInsights } from "../services/testService";
 
 const AIInsights = () => {
-  const [activeCategory, setActiveCategory] = useState("performance");
-  const [showAllInsights, setShowAllInsights] = useState(false);
+  const [insights, setInsights] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const recommendations = [
-    {
-      id: 1,
-      topic: "Integration by Parts",
-      subject: "Math",
-      weakness: 78,
-      description: "78% weakness score. Prioritize before next test.",
-      color: "bg-red-500",
-    },
-    {
-      id: 2,
-      topic: "Thermodynamics Laws",
-      subject: "Physics",
-      weakness: 72,
-      description: "72% weakness score. Prioritize before next test.",
-      color: "bg-orange-500",
-    },
-    {
-      id: 3,
-      topic: "Organic Reactions",
-      subject: "Chemistry",
-      weakness: 68,
-      description: "68% weakness score. Prioritize before next test.",
-      color: "bg-yellow-500",
-    },
-    {
-      id: 4,
-      topic: "Electrostatics",
-      subject: "Physics",
-      weakness: 65,
-      description: "65% weakness score. Prioritize before next test.",
-      color: "bg-blue-500",
-    },
-  ];
-
-  // Category-specific insights data
-  const categoryInsights = {
-    performance: {
-      title: "Performance Analysis",
-      icon: BarChart3,
-      color: "bg-purple-500",
-      data: {
-        overall: "82%",
-        trend: "+12%",
-        bestSubject: "Mathematics (88%)",
-        needsWork: "Chemistry (65%)",
-        details: [
-          "Mathematics performance improved by 12% in last 4 tests",
-          "Physics consistency increased by 8% this week",
-          "Average score: 78% across all subjects",
-          "Peak performance time: Morning (8-11 AM)",
-        ]
-      }
-    },
-    weakness: {
-      title: "Weakness Analysis",
-      icon: AlertTriangle,
-      color: "bg-red-500",
-      data: {
-        overall: "3 topics critical",
-        topWeakness: "Integration by Parts (78%)",
-        secondWeakness: "Thermodynamics (72%)",
-        thirdWeakness: "Organic Reactions (68%)",
-        details: [
-          "Integration by Parts - 78% error rate",
-          "Thermodynamics Laws - 72% error rate",
-          "Organic Reactions - 68% error rate",
-          "Electrostatics - 65% error rate",
-        ]
-      }
-    },
-    timeMgmt: {
-      title: "Time Management",
-      icon: Clock,
-      color: "bg-blue-500",
-      data: {
-        overall: "52s avg/question",
-        trend: "-3s vs last week",
-        timePerSubject: "Math: 45s, Physics: 55s, Chemistry: 58s",
-        efficiency: "65% time utilization",
-        details: [
-          "Average time per question: 52 seconds",
-          "Time saved this week: 3 seconds/question",
-          "Most time-consuming: Organic Chemistry (75s)",
-          "Quickest subject: Mathematics (45s)",
-        ]
-      }
-    },
-    strategy: {
-      title: "Strategy Recommendations",
-      icon: Target,
-      color: "bg-green-500",
-      data: {
-        overall: "3 key focus areas",
-        priority1: "Integration by Parts",
-        priority2: "Thermodynamics Laws",
-        priority3: "Organic Reactions",
-        details: [
-          "Focus on Integration by Parts - 20 practice questions daily",
-          "Revise Thermodynamics Laws with mind maps",
-          "Take mixed topic tests to improve time management",
-          "Attempt 3 tests per day for next week",
-        ]
-      }
+  const fetchInsights = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const { data } = await getStudentAIInsights();
+      setInsights(data);
+    } catch (err) {
+      console.error("Failed to fetch AI insights:", err);
+      setError(err.response?.data?.message || "Failed to generate insights. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const insightCards = [
-    { key: "performance", icon: BarChart3, label: "Performance", color: "bg-purple-500" },
-    { key: "weakness", icon: AlertTriangle, label: "Weakness", color: "bg-red-500" },
-    { key: "timeMgmt", icon: Clock, label: "Time Management", color: "bg-blue-500" },
-    { key: "strategy", icon: Target, label: "Strategy", color: "bg-green-500" },
-  ];
+  useEffect(() => {
+    fetchInsights();
+  }, []);
 
-  const currentInsight = categoryInsights[activeCategory];
+  if (loading) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto flex flex-col items-center justify-center py-32">
+        <div className="relative mb-6">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center animate-pulse">
+            <Brain className="text-white" size={36} />
+          </div>
+          <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-white shadow-lg flex items-center justify-center">
+            <Loader2 className="text-purple-600 animate-spin" size={18} />
+          </div>
+        </div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">AI is Analyzing Your Performance</h3>
+        <p className="text-gray-500 text-sm max-w-md text-center">
+          Reviewing your test scores, subject accuracy, weak topics, and time management to generate personalized insights...
+        </p>
+        <div className="flex gap-2 mt-6">
+          <div className="w-2 h-2 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: "0s" }} />
+          <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: "0.15s" }} />
+          <div className="w-2 h-2 rounded-full bg-purple-600 animate-bounce" style={{ animationDelay: "0.3s" }} />
+        </div>
+      </div>
+    );
+  }
 
-  const handleGenerateNewInsight = () => {
-    alert("Generating new AI insights based on your latest test data...");
+  if (error) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto flex flex-col items-center justify-center py-32">
+        <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-4">
+          <AlertTriangle className="text-red-500" size={32} />
+        </div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">Unable to Generate Insights</h3>
+        <p className="text-gray-500 text-sm mb-6 max-w-md text-center">{error}</p>
+        <button
+          onClick={fetchInsights}
+          className="flex items-center gap-2 bg-purple-600 text-white px-6 py-2.5 rounded-lg hover:bg-purple-700 transition"
+        >
+          <RefreshCw size={16} />
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
+  if (!insights) return null;
+
+  const { performanceSummary, weakTopics, subjectBreakdown, timeManagement, studyStrategy, scoreAnalysis, aiNarrative } = insights;
+
+  const getVerdictColor = (verdict) => {
+    switch (verdict) {
+      case 'Excellent': return 'text-green-600 bg-green-100';
+      case 'Good': return 'text-blue-600 bg-blue-100';
+      case 'Average': return 'text-yellow-600 bg-yellow-100';
+      case 'Needs Improvement': return 'text-orange-600 bg-orange-100';
+      case 'Critical': return 'text-red-600 bg-red-100';
+      default: return 'text-gray-600 bg-gray-100';
+    }
+  };
+
+  const getTrendIcon = (trend) => {
+    if (trend === 'improving' || (typeof trend === 'string' && trend.startsWith('+'))) {
+      return <TrendingUp size={14} className="text-green-500" />;
+    }
+    if (trend === 'declining' || (typeof trend === 'string' && trend.startsWith('-'))) {
+      return <TrendingDown size={14} className="text-red-500" />;
+    }
+    return null;
   };
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">AI Insights</h1>
-        <p className="text-gray-500 mt-1">Personalized analysis powered by AI.</p>
-      </div>
-
-      {/* Main Insight Card - Dynamic based on active category */}
-      <div className="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl p-8 text-white mb-8 shadow-lg">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-3">
-              <Brain className="text-purple-200" size={20} />
-              <span className="text-purple-200 text-sm font-medium">
-                AI {currentInsight.title}
-              </span>
-            </div>
-            <p className="text-purple-100 text-sm mb-4">Based on your last 10 tests</p>
-            
-            {/* Dynamic content based on category */}
-            {activeCategory === "performance" && (
-              <>
-                <p className="text-2xl font-semibold leading-relaxed max-w-3xl">
-                  Your performance in Mathematics has improved by 12% over the last 4 tests. 
-                  Focus on Integration and Differential Equations to push above 90% accuracy.
-                </p>
-                <div className="flex gap-4 mt-6">
-                  <div className="bg-white/20 rounded-lg px-4 py-2">
-                    <span className="text-sm">Overall Score</span>
-                    <span className="ml-2 font-bold text-green-300">82%</span>
-                  </div>
-                  <div className="bg-white/20 rounded-lg px-4 py-2">
-                    <span className="text-sm">Improvement</span>
-                    <span className="ml-2 font-bold text-green-300">+12%</span>
-                  </div>
-                  <div className="bg-white/20 rounded-lg px-4 py-2">
-                    <span className="text-sm">Best Subject</span>
-                    <span className="ml-2 font-bold">Math (88%)</span>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {activeCategory === "weakness" && (
-              <>
-                <p className="text-2xl font-semibold leading-relaxed max-w-3xl">
-                  You have 3 critical weak areas that need immediate attention. 
-                  Integration by Parts shows 78% error rate, followed by Thermodynamics at 72%.
-                </p>
-                <div className="flex gap-4 mt-6">
-                  <div className="bg-white/20 rounded-lg px-4 py-2">
-                    <span className="text-sm">Critical Topics</span>
-                    <span className="ml-2 font-bold text-red-300">3</span>
-                  </div>
-                  <div className="bg-white/20 rounded-lg px-4 py-2">
-                    <span className="text-sm">Highest Weakness</span>
-                    <span className="ml-2 font-bold text-red-300">78%</span>
-                  </div>
-                  <div className="bg-white/20 rounded-lg px-4 py-2">
-                    <span className="text-sm">Subject</span>
-                    <span className="ml-2 font-bold">Mathematics</span>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {activeCategory === "timeMgmt" && (
-              <>
-                <p className="text-2xl font-semibold leading-relaxed max-w-3xl">
-                  Your average time per question is 52 seconds, which is 3 seconds faster than last week. 
-                  Organic Chemistry takes the most time at 75 seconds per question.
-                </p>
-                <div className="flex gap-4 mt-6">
-                  <div className="bg-white/20 rounded-lg px-4 py-2">
-                    <span className="text-sm">Avg Time/Q</span>
-                    <span className="ml-2 font-bold text-green-300">52s</span>
-                  </div>
-                  <div className="bg-white/20 rounded-lg px-4 py-2">
-                    <span className="text-sm">Improvement</span>
-                    <span className="ml-2 font-bold text-green-300">-3s</span>
-                  </div>
-                  <div className="bg-white/20 rounded-lg px-4 py-2">
-                    <span className="text-sm">Slowest Subject</span>
-                    <span className="ml-2 font-bold">Chemistry (75s)</span>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {activeCategory === "strategy" && (
-              <>
-                <p className="text-2xl font-semibold leading-relaxed max-w-3xl">
-                  Based on your performance, focus on Integration by Parts with 20 practice questions daily. 
-                  Revise Thermodynamics Laws using mind maps for better retention.
-                </p>
-                <div className="flex gap-4 mt-6">
-                  <div className="bg-white/20 rounded-lg px-4 py-2">
-                    <span className="text-sm">Priority Topics</span>
-                    <span className="ml-2 font-bold">3</span>
-                  </div>
-                  <div className="bg-white/20 rounded-lg px-4 py-2">
-                    <span className="text-sm">Daily Practice</span>
-                    <span className="ml-2 font-bold">20 Qs</span>
-                  </div>
-                  <div className="bg-white/20 rounded-lg px-4 py-2">
-                    <span className="text-sm">Target</span>
-                    <span className="ml-2 font-bold">3 Tests/Day</span>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-          
-          {/* Generate Button */}
-          <button 
-            onClick={handleGenerateNewInsight}
-            className="bg-white text-purple-600 px-6 py-3 rounded-xl font-medium hover:shadow-xl transition flex items-center gap-2 whitespace-nowrap"
-          >
-            <Zap size={18} />
-            Generate New Insight
-          </button>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800">AI Insights</h1>
+          <p className="text-gray-500 mt-1">Personalized analysis powered by AI</p>
         </div>
+        <button
+          onClick={fetchInsights}
+          disabled={loading}
+          className="flex items-center gap-2 bg-purple-600 text-white px-5 py-2.5 rounded-xl font-medium hover:bg-purple-700 transition disabled:opacity-50"
+        >
+          {loading ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
+          Generate New Insight
+        </button>
       </div>
 
-      {/* Insight Categories - Now Working */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
-        {insightCards.map((card) => (
-          <div
-            key={card.key}
-            onClick={() => setActiveCategory(card.key)}
-            className={`bg-white rounded-xl p-5 shadow-sm border-2 cursor-pointer transition-all hover:shadow-md ${
-              activeCategory === card.key
-                ? "border-purple-500"
-                : "border-transparent hover:border-gray-200"
-            }`}
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div className={`${card.color} p-3 rounded-xl`}>
-                <card.icon className="text-white" size={20} />
-              </div>
-              <ChevronRight className="text-gray-400" size={18} />
+      {/* AI Narrative Banner */}
+      {aiNarrative && (
+        <div className="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl p-8 text-white mb-8 shadow-lg">
+          <div className="flex items-start gap-3">
+            <Brain className="text-purple-200 mt-1 flex-shrink-0" size={22} />
+            <div>
+              <p className="text-purple-200 text-xs font-medium uppercase tracking-wider mb-2">Your AI Analysis</p>
+              <p className="text-lg leading-relaxed">{aiNarrative}</p>
             </div>
-            <h3 className="font-semibold text-gray-800">{card.label}</h3>
-            <p className="text-xs text-gray-500 mt-1">Click to analyze</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Category Details Section - Shows when category is clicked */}
-      {activeCategory && (
-        <div className="mb-8 bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center gap-3 mb-4">
-            <div className={`${categoryInsights[activeCategory].color} p-2 rounded-lg`}>
-              {(() => {
-                const IconComponent = categoryInsights[activeCategory].icon;
-                return <IconComponent className="text-white" size={18} />;
-              })()}
-            </div>
-            <h2 className="text-xl font-semibold text-gray-800">
-              {categoryInsights[activeCategory].title} Details
-            </h2>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            {categoryInsights[activeCategory].data.details.map((detail, index) => (
-              <div key={index} className="p-3 bg-gray-50 rounded-lg">
-                <p className="text-gray-700">{detail}</p>
-              </div>
-            ))}
           </div>
         </div>
       )}
 
-      {/* AI Recommendations Section */}
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">AI Recommendations</h2>
-        
-        <div className="space-y-4">
-          {recommendations.map((rec) => (
-            <div
-              key={rec.id}
-              className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition"
-            >
-              <div className="flex items-start gap-4">
-                {/* Subject Badge */}
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold ${rec.color}`}>
-                  {rec.subject.charAt(0)}
-                </div>
-                
-                {/* Content */}
-                <div className="flex-1">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-semibold text-gray-800 text-lg">{rec.topic}</h3>
-                      <p className="text-sm text-gray-600 mt-1">{rec.description}</p>
-                    </div>
-                    <span className="text-2xl font-bold text-gray-800">{rec.weakness}%</span>
-                  </div>
-                  
-                  {/* Progress Bar */}
-                  <div className="mt-3 w-full bg-gray-100 h-2 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${rec.color}`}
-                      style={{ width: `${rec.weakness}%` }}
-                    />
-                  </div>
-                  
-                  {/* Subject Tag */}
-                  <div className="mt-3">
-                    <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
-                      {rec.subject} - {rec.weakness}% weakness score. Prioritize before next test.
-                    </span>
-                  </div>
-                </div>
-              </div>
+      {/* Performance Overview Cards */}
+      <div className="grid grid-cols-4 gap-4 mb-8">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <BarChart3 className="text-purple-600" size={20} />
             </div>
-          ))}
+            <div>
+              <h3 className="text-2xl font-bold text-gray-800">{performanceSummary.overallAccuracy || 0}%</h3>
+            </div>
+          </div>
+          <p className="text-sm text-gray-500">Overall Accuracy</p>
+          <div className="flex items-center gap-1 mt-1">
+            {getTrendIcon(performanceSummary.accuracyTrend)}
+            <span className={`text-xs ${performanceSummary.accuracyTrend?.startsWith('+') ? 'text-green-600' : performanceSummary.accuracyTrend?.startsWith('-') ? 'text-red-600' : 'text-gray-400'}`}>
+              {performanceSummary.accuracyTrend || 'stable'}
+            </span>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <BookOpen className="text-blue-600" size={20} />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-800">{performanceSummary.testsTaken || 0}</h3>
+          </div>
+          <p className="text-sm text-gray-500">Tests Taken</p>
+          {performanceSummary.overallVerdict && (
+            <span className={`text-xs px-2 py-0.5 rounded-full mt-1 inline-block ${getVerdictColor(performanceSummary.overallVerdict)}`}>
+              {performanceSummary.overallVerdict}
+            </span>
+          )}
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <Award className="text-green-600" size={20} />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-800">{performanceSummary.strongestSubjectAccuracy || 0}%</h3>
+          </div>
+          <p className="text-sm text-gray-500">Strongest Subject</p>
+          <p className="text-xs text-green-600 mt-1">{performanceSummary.strongestSubject || '—'}</p>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-red-100 rounded-lg">
+              <AlertTriangle className="text-red-600" size={20} />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-800">{performanceSummary.weakestSubjectAccuracy || 0}%</h3>
+          </div>
+          <p className="text-sm text-gray-500">Weakest Subject</p>
+          <p className="text-xs text-red-600 mt-1">{performanceSummary.weakestSubject || '—'}</p>
         </div>
       </div>
 
-      {/* All Insights Link */}
-      <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-        <div className="flex items-center gap-3">
-          <Brain size={20} className="text-purple-600" />
-          <p className="text-gray-700">
-            <span className="font-medium">All Insights: </span>
-            Your performance in Mathematics has improved by 12% over the last 4 tests. Focus on Integration and Differential Equations to push above 90% accuracy.
-          </p>
+      {/* Main Grid */}
+      <div className="grid grid-cols-3 gap-6 mb-6">
+        {/* Subject Breakdown */}
+        <div className="col-span-1 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <BarChart3 className="text-purple-600" size={20} />
+            <h3 className="font-semibold text-gray-800">Subject Performance</h3>
+          </div>
+          <div className="space-y-4">
+            {subjectBreakdown.length > 0 ? subjectBreakdown.map((subject, index) => (
+              <div key={index}>
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-gray-800">{subject.subject}</p>
+                    {getTrendIcon(subject.trend)}
+                  </div>
+                  <span className="text-sm font-bold text-gray-800">{subject.accuracy}%</span>
+                </div>
+                <div className="w-full bg-gray-100 h-2 rounded-full mb-1">
+                  <div
+                    className={`h-2 rounded-full ${subject.accuracy >= 70 ? 'bg-green-500' : subject.accuracy >= 40 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                    style={{ width: `${subject.accuracy}%` }}
+                  />
+                </div>
+                <p className="text-xs text-gray-400">{subject.tip}</p>
+              </div>
+            )) : (
+              <p className="text-gray-400 text-sm text-center py-6">No subject data yet</p>
+            )}
+          </div>
+        </div>
+
+        {/* Weak Topics */}
+        <div className="col-span-1 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <AlertTriangle className="text-red-500" size={20} />
+            <h3 className="font-semibold text-gray-800">Weak Topics</h3>
+          </div>
+          <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+            {weakTopics.length > 0 ? weakTopics.map((topic, index) => (
+              <div key={index} className={`p-3 rounded-lg ${topic.priority === 'High' ? 'bg-red-50 border border-red-100' : topic.priority === 'Medium' ? 'bg-yellow-50 border border-yellow-100' : 'bg-gray-50 border border-gray-100'}`}>
+                <div className="flex items-center justify-between mb-1">
+                  <p className="font-medium text-gray-800 text-sm">{topic.topic}</p>
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${topic.priority === 'High' ? 'bg-red-200 text-red-700' : topic.priority === 'Medium' ? 'bg-yellow-200 text-yellow-700' : 'bg-gray-200 text-gray-700'}`}>
+                    {topic.errorRate}% errors
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 mb-1">{topic.subject}</p>
+                <p className="text-xs text-gray-600">{topic.suggestion}</p>
+              </div>
+            )) : (
+              <p className="text-gray-400 text-sm text-center py-6">No weak topics detected</p>
+            )}
+          </div>
+        </div>
+
+        {/* Time Management */}
+        <div className="col-span-1 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Clock className="text-blue-500" size={20} />
+            <h3 className="font-semibold text-gray-800">Time Management</h3>
+          </div>
+          {timeManagement.avgTimePerQ ? (
+            <div className="space-y-4">
+              <div className="bg-blue-50 rounded-xl p-4 text-center">
+                <p className="text-3xl font-bold text-blue-600">{timeManagement.avgTimePerQ}s</p>
+                <p className="text-sm text-gray-500 mt-1">Avg. time per question</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-green-50 rounded-lg p-3 text-center">
+                  <p className="text-lg font-bold text-green-600">{timeManagement.fastestTime}s</p>
+                  <p className="text-xs text-gray-500">{timeManagement.fastestSubject}</p>
+                  <p className="text-xs text-green-600">Fastest</p>
+                </div>
+                <div className="bg-orange-50 rounded-lg p-3 text-center">
+                  <p className="text-lg font-bold text-orange-600">{timeManagement.slowestTime}s</p>
+                  <p className="text-xs text-gray-500">{timeManagement.slowestSubject}</p>
+                  <p className="text-xs text-orange-600">Slowest</p>
+                </div>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-3">
+                <p className="text-sm text-gray-700">{timeManagement.advice}</p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-gray-400 text-sm text-center py-6">No time data yet</p>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom Section */}
+      <div className="grid grid-cols-2 gap-6">
+        {/* Study Strategy */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Target className="text-green-600" size={20} />
+            <h3 className="font-semibold text-gray-800">Study Strategy</h3>
+          </div>
+          <div className="space-y-3">
+            {studyStrategy.length > 0 ? studyStrategy.map((strategy, index) => (
+              <div key={index} className={`p-4 rounded-xl border ${strategy.priority === 'High' ? 'border-red-200 bg-red-50' : strategy.priority === 'Medium' ? 'border-yellow-200 bg-yellow-50' : 'border-green-200 bg-green-50'}`}>
+                <div className="flex items-start justify-between mb-1">
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${strategy.priority === 'High' ? 'bg-red-200 text-red-700' : strategy.priority === 'Medium' ? 'bg-yellow-200 text-yellow-700' : 'bg-green-200 text-green-700'}`}>
+                    {strategy.priority}
+                  </span>
+                </div>
+                <h4 className="font-medium text-gray-800 mt-2 mb-1">{strategy.title}</h4>
+                <p className="text-sm text-gray-600">{strategy.description}</p>
+              </div>
+            )) : (
+              <p className="text-gray-400 text-sm text-center py-6">No strategies available yet</p>
+            )}
+          </div>
+        </div>
+
+        {/* Score Analysis */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <TrendingUp className="text-purple-600" size={20} />
+            <h3 className="font-semibold text-gray-800">Score Analysis</h3>
+          </div>
+          {scoreAnalysis.avgScore !== undefined ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-purple-50 rounded-xl p-4 text-center">
+                  <p className="text-3xl font-bold text-purple-600">{scoreAnalysis.avgScore}</p>
+                  <p className="text-sm text-gray-500 mt-1">Average Score</p>
+                </div>
+                <div className="bg-green-50 rounded-xl p-4 text-center">
+                  <p className="text-3xl font-bold text-green-600">{scoreAnalysis.bestTestScore ?? '—'}</p>
+                  <p className="text-sm text-gray-500 mt-1">Best Score</p>
+                </div>
+              </div>
+              {scoreAnalysis.bestTestName && (
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <p className="text-xs text-gray-500">Best Performance In</p>
+                  <p className="text-sm font-medium text-gray-800">{scoreAnalysis.bestTestName}</p>
+                </div>
+              )}
+              <div className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+                <div>
+                  <p className="text-xs text-gray-500">Recent Trend</p>
+                  <div className="flex items-center gap-1 mt-0.5">
+                    {getTrendIcon(scoreAnalysis.recentTrend)}
+                    <p className="text-sm font-medium text-gray-800 capitalize">{scoreAnalysis.recentTrend}</p>
+                  </div>
+                </div>
+                {scoreAnalysis.projectedScore && (
+                  <div className="text-right">
+                    <p className="text-xs text-gray-500">Projected</p>
+                    <p className="text-sm font-bold text-purple-600">{scoreAnalysis.projectedScore}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <p className="text-gray-400 text-sm text-center py-6">No score data yet</p>
+          )}
         </div>
       </div>
     </div>
