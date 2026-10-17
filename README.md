@@ -121,6 +121,10 @@ The system seeds a default Super-Admin account automatically:
 
 ---
 
+## 📊 Performance Analytics
+
+PrepIntel combines test results, performance history, and AI-generated insights to help students identify areas for improvement. The analytics dashboard also supports administrators in reviewing student progress and comparing performance across batches.
+
 ## 📜 Available Scripts
 
 ### Backend (`Loop/server`)
